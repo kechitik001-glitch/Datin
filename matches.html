@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matches | FIND TRUE LOVE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--brand-1:#ff4d6d;--brand-2:#e94560;--brand-3:#c73e54;--gold:#f4c95d;--radius-sm:12px;--radius-lg:24px;--radius-pill:100px;--transition:cubic-bezier(0.16,1,0.3,1)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;color:#fff;line-height:1.55;overflow-x:hidden;background:#0a0a18;padding-bottom:40px}
+    body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 20% 20%,rgba(233,69,96,.2),transparent 45%),radial-gradient(circle at 80% 80%,rgba(244,201,93,.1),transparent 45%);z-index:-2;pointer-events:none}
+    .hearts{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:-1}
+    .heart{position:absolute;bottom:-60px;font-size:18px;color:rgba(255,143,163,.5);animation:floatUp linear infinite;user-select:none}
+    @keyframes floatUp{0%{transform:translateY(0) rotate(0) scale(.8);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-110vh) rotate(360deg) scale(1.2);opacity:0}}
+    .topbar{position:sticky;top:0;z-index:100;padding:16px 20px;background:rgba(10,10,24,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .topbar .logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,var(--brand-2),var(--brand-1) 50%,var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer}
+    .topbar .actions{display:flex;gap:8px}
+    .topbar .actions button{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#fff;font-family:inherit;font-size:12px;font-weight:700;padding:9px 16px;border-radius:var(--radius-pill);cursor:pointer;transition:background .2s,border-color .2s,transform .15s}
+    .topbar .actions button:hover{background:rgba(233,69,96,.18);border-color:rgba(233,69,96,.4)}
+    .topbar .actions button:active{transform:scale(.95)}
+    .tabs{max-width:640px;margin:0 auto;padding:20px 16px 4px;display:flex;gap:10px}
+    .tab-btn{flex:1;padding:14px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#cfd3e0;font-family:inherit;font-size:13.5px;font-weight:700;border-radius:14px;cursor:pointer;transition:background .25s,border-color .25s,color .25s}
+    .tab-btn:hover{background:rgba(255,255,255,.09)}
+    .tab-btn.active{background:linear-gradient(135deg,var(--brand-1),var(--brand-2));color:#fff;border-color:transparent;box-shadow:0 10px 26px rgba(233,69,96,.4)}
+    .panel{max-width:640px;margin:0 auto;padding:22px 16px 60px}
+    .panel h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:800;letter-spacing:-.4px;margin-bottom:8px}
+    .panel .sub{font-size:14px;color:#9aa0b4;margin-bottom:24px}
+    .new-matches{display:flex;gap:16px;overflow-x:auto;padding:8px 2px 20px;margin:0 -4px;scroll-snap-type:x mandatory}
+    .new-matches::-webkit-scrollbar{height:6px}
+    .new-matches::-webkit-scrollbar-track{background:transparent}
+    .new-matches::-webkit-scrollbar-thumb{background:rgba(255,143,163,.3);border-radius:6px}
+    .new-match{flex:0 0 auto;scroll-snap-align:start;text-align:center;cursor:pointer;transition:transform .2s}
+    .new-match:hover{transform:translateY(-3px)}
+    .new-match .ring{width:88px;height:88px;border-radius:50%;padding:3px;background:linear-gradient(135deg,var(--brand-1),var(--gold),var(--brand-2));box-shadow:0 10px 24px rgba(233,69,96,.4);position:relative}
+    .new-match .ring::after{content:"";position:absolute;bottom:2px;right:2px;width:16px;height:16px;background:#4cd964;border:3px solid #0a0a18;border-radius:50%;box-shadow:0 0 10px #4cd964}
+    .new-match .ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid #0a0a18}
+    .new-match .ring .initial{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,#e94560,#6a1b3a);display:none;align-items:center;justify-content:center;font-size:32px;font-weight:900;color:rgba(255,255,255,.85);border:3px solid #0a0a18}
+    .new-match .ring.no-img img{display:none}
+    .new-match .ring.no-img .initial{display:flex}
+    .new-match .name{font-size:12.5px;font-weight:600;color:#e8eaf0;margin-top:10px;max-width:88px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .conv-list{display:flex;flex-direction:column;gap:12px}
+    .conv{display:flex;align-items:center;gap:16px;background:rgba(20,20,40,.7);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:16px 18px;cursor:pointer;transition:transform .2s,background .2s,border-color .2s;animation:rowIn .4s var(--transition) both}
+    @keyframes rowIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .conv:hover{transform:translateY(-3px);background:rgba(30,30,55,.9);border-color:rgba(233,69,96,.4);box-shadow:0 14px 40px rgba(0,0,0,.5)}
+    .conv .avatar{width:62px;height:62px;border-radius:50%;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#2a2a3e,#1a1a2e);position:relative;border:2px solid rgba(233,69,96,.3)}
+    .conv .avatar img{width:100%;height:100%;object-fit:cover}
+    .conv .avatar .initial{width:100%;height:100%;display:none;align-items:center;justify-content:center;font-size:24px;font-weight:900;background:linear-gradient(135deg,#e94560,#6a1b3a);color:rgba(255,255,255,.85)}
+    .conv .avatar.no-img img{display:none}
+    .conv .avatar.no-img .initial{display:flex}
+    .conv .avatar::after{content:"";position:absolute;bottom:0;right:0;width:15px;height:15px;background:#4cd964;border:3px solid #0a0a18;border-radius:50%;box-shadow:0 0 8px #4cd964}
+    .conv .meta{flex:1;min-width:0}
+    .conv .meta .row1{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px}
+    .conv .meta .name{font-size:16px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .conv .meta .time{font-size:11.5px;color:#7a7a90;flex-shrink:0}
+    .conv .meta .preview{font-size:13.5px;color:#9aa0b4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .conv .meta .preview.you{color:#cfd3e0}
+    .conv .delete-btn{background:transparent;border:none;color:#7a7a90;font-size:18px;cursor:pointer;padding:8px 12px;border-radius:10px;transition:background .15s,color .15s}
+    .conv .delete-btn:hover{background:rgba(255,59,48,.18);color:#ff3b30}
+    .empty-state{text-align:center;padding:80px 24px;color:#9aa0b4}
+    .empty-state .icon{font-size:64px;margin-bottom:16px;opacity:.7;animation:heartbeat 2s ease-in-out infinite}
+    @keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+    .empty-state h2{color:#fff;font-size:22px;margin-bottom:10px;font-family:'Playfair Display',serif}
+    .empty-state p{font-size:14px;margin-bottom:24px;max-width:340px;margin-left:auto;margin-right:auto}
+    .empty-state .btn{display:inline-block;padding:15px 36px;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));color:#fff;text-decoration:none;border-radius:var(--radius-pill);font-size:15px;font-weight:800;box-shadow:0 14px 36px rgba(233,69,96,.45);transition:transform .2s}
+    .empty-state .btn:hover{transform:translateY(-3px)}
+    .chat-screen{position:fixed;inset:0;background:linear-gradient(-45deg,#0f0f1e,#2a1a3e,#0f0f1e);z-index:350;display:none;flex-direction:column}
+    .chat-screen.show{display:flex}
+    .chat-header{padding:16px 20px;background:rgba(20,20,40,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .chat-header .back{font-size:24px;cursor:pointer;color:var(--brand-1);transition:transform .2s;user-select:none}
+    .chat-header .back:hover{transform:translateX(-3px)}
+    .chat-header .avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(233,69,96,.5);background:#2a2a3e}
+    .chat-header .info{flex:1;min-width:0}
+    .chat-header .name{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .chat-header .status{font-size:12px;color:#4cd964;display:flex;align-items:center;gap:5px}
+    .chat-header .status::before{content:"";width:6px;height:6px;background:#4cd964;border-radius:50%;box-shadow:0 0 6px #4cd964}
+    .chat-messages{flex:1;overflow-y:auto;padding:22px 18px;display:flex;flex-direction:column;gap:10px;max-width:720px;margin:0 auto;width:100%}
+    .chat-messages::-webkit-scrollbar{width:6px}
+    .chat-messages::-webkit-scrollbar-track{background:transparent}
+    .chat-messages::-webkit-scrollbar-thumb{background:rgba(255,143,163,.3);border-radius:6px}
+    .chat-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#888;text-align:center;padding:40px 20px;gap:10px}
+    .chat-empty .icon{font-size:44px;opacity:.6}
+    .chat-empty h3{color:#cfd3e0;font-size:18px;font-weight:700}
+    .chat-empty p{font-size:13.5px;max-width:300px}
+    .msg{max-width:78%;padding:12px 18px;border-radius:22px;font-size:15px;line-height:1.45;word-wrap:break-word;animation:msgIn .3s var(--transition) both}
+    @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .msg.me{background:linear-gradient(135deg,var(--brand-1),var(--brand-2));color:#fff;align-self:flex-end;border-bottom-right-radius:6px;box-shadow:0 4px 14px rgba(233,69,96,.3)}
+    .chat-input{padding:14px 16px 18px;background:rgba(20,20,40,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.08);display:flex;gap:10px;align-items:center;max-width:720px;margin:0 auto;width:100%}
+    .chat-input input{flex:1;padding:14px 20px;border-radius:var(--radius-pill);border:1.5px solid rgba(255,255,255,.08);background:rgba(255,255,255,.06);color:#fff;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s,background .2s}
+    .chat-input input::placeholder{color:#888}
+    .chat-input input:focus{border-color:rgba(233,69,96,.6);background:rgba(255,255,255,.08)}
+    .chat-input button{padding:0 24px;height:48px;border-radius:var(--radius-pill);background:linear-gradient(135deg,var(--brand-1),var(--brand-2));color:#fff;border:none;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 8px 20px rgba(233,69,96,.4);transition:transform .15s}
+    .chat-input button:hover{transform:translateY(-1px)}
+    .confirm-overlay{position:fixed;inset:0;background:rgba(10,10,24,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:400;padding:20px}
+    .confirm-overlay.show{display:flex;animation:fadeIn .25s ease}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .confirm-box{background:#1a1a30;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:30px 26px;max-width:400px;width:100%;text-align:center;box-shadow:0 40px 100px rgba(0,0,0,.6)}
+    .confirm-box h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:10px}
+    .confirm-box p{color:#9aa0b4;font-size:14px;margin-bottom:24px;line-height:1.55}
+    .confirm-box .row{display:flex;gap:12px}
+    .confirm-box button{flex:1;padding:14px;border-radius:var(--radius-pill);font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;border:none;transition:transform .15s,background .2s}
+    .confirm-box .cancel{background:rgba(255,255,255,.08);color:#fff}
+    .confirm-box .cancel:hover{background:rgba(255,255,255,.14)}
+    .confirm-box .delete{background:#ff3b30;color:#fff}
+    .confirm-box .delete:hover{background:#d92a20}
+    @media(max-width:560px){.panel h1{font-size:24px}.new-match .ring{width:76px;height:76px}.new-match .name{font-size:11.5px;max-width:76px}.conv{padding:14px 16px;gap:14px}.conv .avatar{width:56px;height:56px}.conv .meta .name{font-size:15px}.conv .meta .preview{font-size:13px}.topbar .actions button{padding:8px 12px;font-size:11px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <div class="hearts" aria-hidden="true" id="hearts"></div>
+
+  <header class="topbar">
+    <div class="logo" onclick="location.href='browse.html'">FIND TRUE LOVE</div>
+    <div class="actions">
+      <button onclick="location.href='browse.html'">Browse</button>
+      <button onclick="location.href='index.html'">Sign out</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="all" onclick="switchTab('all')">All Matches</button>
+    <button class="tab-btn" data-tab="chats" onclick="switchTab('chats')">Chats</button>
+  </nav>
+
+  <main class="panel">
+    <h1 id="panel-title">Your Matches</h1>
+    <p class="sub" id="panel-sub">Everyone you've connected with, in one place.</p>
+
+    <section id="new-matches-section" style="display:none;">
+      <h2 style="font-size:12.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:14px">New Matches</h2>
+      <div class="new-matches" id="new-matches-row"></div>
+    </section>
+
+    <section id="conversations-section">
+      <h2 style="font-size:12.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:800;margin:8px 0 14px">Conversations</h2>
+      <div class="conv-list" id="conv-list"></div>
+
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <div class="icon">💕</div>
+        <h2>No matches yet</h2>
+        <p>When you and someone both like each other, they'll appear here.</p>
+        <a href="browse.html" class="btn">Start Browsing</a>
+      </div>
+    </section>
+  </main>
+
+  <div class="chat-screen" id="chatScreen">
+    <div class="chat-header">
+      <div class="back" onclick="closeChat()">&#8592;</div>
+      <img id="chatAvatar" class="avatar" src="" alt="">
+      <div class="info">
+        <div class="name" id="chatName">Chat</div>
+        <div class="status">Online</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-empty" id="chatEmpty">
+        <div class="icon">💬</div>
+        <h3>Start the conversation</h3>
+        <p>Say hello — a real connection starts with a real message.</p>
+      </div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()" autocomplete="off">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <h3>Delete conversation?</h3>
+      <p id="confirm-text">This will remove the match and all messages.</p>
+      <div class="row">
+        <button class="cancel" onclick="closeConfirm()">Cancel</button>
+        <button class="delete" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      (function spawnHearts() {
+        const container = document.getElementById('hearts');
+        const symbols = ['❤', '♥', '❤', '💕', '❤'];
+        const count = window.innerWidth < 560 ? 8 : 14;
+        for (let i = 0; i < count; i++) {
+          const h = document.createElement('span');
+          h.className = 'heart';
+          h.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+          h.style.left = Math.random() * 100 + '%';
+          h.style.fontSize = (12 + Math.random() * 20) + 'px';
+          h.style.animationDuration = (12 + Math.random() * 14) + 's';
+          h.style.animationDelay = (Math.random() * 12) + 's';
+          h.style.opacity = 0.3 + Math.random() * 0.4;
+          container.appendChild(h);
+        }
+      })();
+
+      const STORAGE_KEY = 'ftl_matches_v1';
+
+      function loadMatches() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return [];
+          const arr = JSON.parse(raw);
+          return Array.isArray(arr) ? arr : [];
+        } catch (err) {
+          console.error('Failed to load matches:', err);
+          return [];
+        }
+      }
+
+      function saveMatches(list) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+        catch (err) { console.error('Failed to save matches:', err); }
+      }
+
+      function seedIfEmpty() {
+        const existing = loadMatches();
+        if (existing.length > 0) return existing;
+        const now = Date.now();
+        const seed = [
+          { id: 'seed-amara', name: 'Amara', age: 27, location: 'Nairobi, Kenya', img: 'https://i.pravatar.cc/600?img=1', matchedAt: now - 1000 * 60 * 60 * 3, messages: [ { text: 'Hi Amara, nice to meet you!', time: now - 1000 * 60 * 60 * 3 + 60 * 1000, from: 'me' } ] },
+          { id: 'seed-james', name: 'James', age: 31, location: 'London, UK', img: 'https://i.pravatar.cc/600?img=62', matchedAt: now - 1000 * 60 * 60 * 26, messages: [ { text: 'Hey! Glad we matched 😊', time: now - 1000 * 60 * 60 * 26 + 60 * 1000, from: 'me' }, { text: 'What are you looking for here?', time: now - 1000 * 60 * 60 * 24, from: 'me' } ] }
+        ];
+        saveMatches(seed);
+        return seed;
+      }
+
+      const newRow = document.getElementById('new-matches-row');
+      const newSection = document.getElementById('new-matches-section');
+      const convList = document.getElementById('conv-list');
+      const emptyState = document.getElementById('empty-state');
+      const panelTitle = document.getElementById('panel-title');
+      const panelSub = document.getElementById('panel-sub');
+
+      let allMatches = [];
+      let activeTab = 'all';
+
+      function timeAgo(ts) {
+        const diff = Date.now() - ts;
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'now';
+        if (mins < 60) return mins + 'm';
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return hours + 'h';
+        const days = Math.floor(hours / 24);
+        if (days < 7) return days + 'd';
+        return new Date(ts).toLocaleDateString();
+      }
+
+      function previewText(match) {
+        if (!match.messages || match.messages.length === 0) return 'Say hi — start the conversation';
+        const last = match.messages[match.messages.length - 1];
+        return (last.from === 'me' ? 'You: ' : '') + last.text;
+      }
+
+      function render() {
+        const list = allMatches.slice().sort((a, b) => {
+          const aLast = a.messages.length ? a.messages[a.messages.length - 1].time : a.matchedAt;
+          const bLast = b.messages.length ? b.messages[b.messages.length - 1].time : b.matchedAt;
+          return bLast - aLast;
+        });
+
+        const newMatches = list.filter(m => Date.now() - m.matchedAt < 1000 * 60 * 60 * 48 && m.messages.filter(x => x.from === 'them').length === 0);
+        const conversations = activeTab === 'chats' ? list.filter(m => m.messages.length > 0) : list;
+
+        newRow.innerHTML = '';
+        if (newMatches.length && activeTab === 'all') {
+          newSection.style.display = 'block';
+          newMatches.forEach(m => {
+            const el = document.createElement('div');
+            el.className = 'new-match';
+            el.onclick = () => openChat(m.id);
+            el.innerHTML = `
+              <div class="ring" id="ring-${m.id}">
+                <img src="${m.img}" alt="${m.name}" onerror="document.getElementById('ring-${m.id}').classList.add('no-img')">
+                <div class="initial">${m.name.charAt(0)}</div>
+              </div>
+              <div class="name">${m.name}</div>`;
+            newRow.appendChild(el);
+          });
+        } else {
+          newSection.style.display = 'none';
+        }
+
+        convList.innerHTML = '';
+        if (conversations.length === 0) {
+          emptyState.style.display = 'block';
+          panelTitle.textContent = activeTab === 'chats' ? 'Your Chats' : 'Your Matches';
+          panelSub.textContent = activeTab === 'chats' ? 'Conversations with your matches appear here.' : 'Everyone you\'ve connected with, in one place.';
+          return;
+        }
+        emptyState.style.display = 'none';
+        panelTitle.textContent = activeTab === 'chats' ? 'Your Chats' : 'Your Matches';
+        panelSub.textContent = activeTab === 'chats'
+          ? `${conversations.length} conversation${conversations.length === 1 ? '' : 's'}`
+          : `${conversations.length} match${conversations.length === 1 ? '' : 'es'} · Tap to open chat`;
+
+        conversations.forEach((m, i) => {
+          const lastTime = m.messages.length ? m.messages[m.messages.length - 1].time : m.matchedAt;
+          const el = document.createElement('div');
+          el.className = 'conv';
+          el.style.animationDelay = (i * 0.05) + 's';
+          el.onclick = () => openChat(m.id);
+          el.innerHTML = `
+            <div class="avatar" id="av-${m.id}">
+              <img src="${m.img}" alt="${m.name}" onerror="document.getElementById('av-${m.id}').classList.add('no-img')">
+              <div class="initial">${m.name.charAt(0)}</div>
+            </div>
+            <div class="meta">
+              <div class="row1">
+                <div class="name">${m.name}, ${m.age}</div>
+                <div class="time">${timeAgo(lastTime)}</div>
+              </div>
+              <div class="preview ${m.messages.length && m.messages[m.messages.length - 1].from === 'me' ? 'you' : ''}">${previewText(m)}</div>
+            </div>
+            <button class="delete-btn" title="Delete" onclick="event.stopPropagation();askDelete('${m.id}')">&#10005;</button>`;
+          convList.appendChild(el);
+        });
+      }
+
+      function switchTab(tab) {
+        activeTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+        render();
+      }
+
+      const chatScreen = document.getElementById('chatScreen');
+      const chatAvatar = document.getElementById('chatAvatar');
+      const chatName = document.getElementById('chatName');
+      const chatMessages = document.getElementById('chatMessages');
+      const chatEmpty = document.getElementById('chatEmpty');
+      const chatInput = document.getElementById('chatInput');
+      let openMatchId = null;
+
+      function openChat(id) {
+        const m = allMatches.find(x => x.id === id);
+        if (!m) return;
+        openMatchId = id;
+        chatName.textContent = m.name;
+        chatAvatar.src = m.img;
+        chatAvatar.onerror = function () { this.src = ''; this.style.background = 'linear-gradient(135deg, #e94560, #6a1b3a)'; };
+        chatMessages.innerHTML = '';
+        if (m.messages.length === 0) {
+          chatMessages.appendChild(chatEmpty);
+          chatEmpty.style.display = 'flex';
+        } else {
+          chatEmpty.style.display = 'none';
+          m.messages.forEach(msg => addMessageBubble(msg));
+        }
+        chatScreen.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => { chatInput.focus(); chatMessages.scrollTop = chatMessages.scrollHeight; }, 200);
+      }
+
+      function closeChat() {
+        chatScreen.classList.remove('show');
+        document.body.style.overflow = '';
+        openMatchId = null;
+        render();
+      }
+
+      function addMessageBubble(msg) {
+        const div = document.createElement('div');
+        div.className = 'msg me';
+        div.textContent = msg.text;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function sendMessage() {
+        const text = chatInput.value.trim();
+        if (!text || !openMatchId) return;
+        const m = allMatches.find(x => x.id === openMatchId);
+        if (!m) return;
+        const msg = { text, time: Date.now(), from: 'me' };
+        m.messages.push(msg);
+        if (chatEmpty.parentNode === chatMessages) chatEmpty.style.display = 'none';
+        addMessageBubble(msg);
+        saveMatches(allMatches);
+        chatInput.value = '';
+        chatInput.focus();
+      }
+
+      const confirmOverlay = document.getElementById('confirmOverlay');
+      const confirmText = document.getElementById('confirm-text');
+      let pendingDeleteId = null;
+
+      function askDelete(id) {
+        const m = allMatches.find(x => x.id === id);
+        if (!m) return;
+        pendingDeleteId = id;
+        confirmText.textContent = `This will delete your conversation with ${m.name}. This can't be undone.`;
+        confirmOverlay.classList.add('show');
+      }
+
+      function closeConfirm() { confirmOverlay.classList.remove('show'); pendingDeleteId = null; }
+
+      function confirmDelete() {
+        if (!pendingDeleteId) return;
+        allMatches = allMatches.filter(x => x.id !== pendingDeleteId);
+        saveMatches(allMatches);
+        closeConfirm();
+        render();
+      }
+
+      allMatches = seedIfEmpty();
+      render();
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        if (chatScreen.classList.contains('show')) closeChat();
+        else if (confirmOverlay.classList.contains('show')) closeConfirm();
+      });
+
+      window.switchTab = switchTab;
+      window.openChat = openChat;
+      window.closeChat = closeChat;
+      window.sendMessage = sendMessage;
+      window.askDelete = askDelete;
+      window.closeConfirm = closeConfirm;
+      window.confirmDelete = confirmDelete;
+    })();
+  </script>
+</body>
+</html> 
